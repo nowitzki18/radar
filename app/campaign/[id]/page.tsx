@@ -6,6 +6,9 @@ import AlertCard from '@/components/AlertCard';
 import { prisma } from '@/lib/prisma';
 import CampaignActions from './CampaignActions';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getCampaign(id: string) {
   const campaign = await prisma.campaign.findUnique({
     where: { id },

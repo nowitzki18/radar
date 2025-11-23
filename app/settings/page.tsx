@@ -2,6 +2,9 @@ import Nav from '@/components/Nav';
 import { prisma } from '@/lib/prisma';
 import SettingsClient from './SettingsClient';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getSettings() {
   let settings = await prisma.settings.findFirst();
 

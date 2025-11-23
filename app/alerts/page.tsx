@@ -4,6 +4,9 @@ import AlertCard from '@/components/AlertCard';
 import { prisma } from '@/lib/prisma';
 import AlertsClient from './AlertsClient';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getAlerts(severity?: string, startDate?: string, endDate?: string) {
   const where: {
     severity?: string;

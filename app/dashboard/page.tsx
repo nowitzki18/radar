@@ -4,6 +4,9 @@ import Nav from '@/components/Nav';
 import { prisma } from '@/lib/prisma';
 import { Campaign, AlertSeverity, CampaignWithAlertStatus } from '@/types';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 async function getCampaigns(): Promise<CampaignWithAlertStatus[]> {
   const campaigns: Campaign[] = await prisma.campaign.findMany({
     include: {
