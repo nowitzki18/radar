@@ -33,30 +33,17 @@ model Metric {
 }
 
 model Alert {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   campaignId  String
-  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   metricName  String
-  severity    AlertSeverity
+  severity    String   // CRITICAL, WARNING, INFO, OK
   expected    Float
   actual      Float
-  timestamp   DateTime    @default(now())
-  status      AlertStatus @default(ACTIVE)
+  timestamp   DateTime @default(now())
+  status      String   @default("ACTIVE") // ACTIVE, RESOLVED, DISMISSED
   resolvedAt  DateTime?
   dismissedAt DateTime?
-}
-
-enum AlertSeverity {
-  CRITICAL
-  WARNING
-  INFO
-  OK
-}
-
-enum AlertStatus {
-  ACTIVE
-  RESOLVED
-  DISMISSED
 }
 
 model Settings {
