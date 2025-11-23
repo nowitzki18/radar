@@ -3,12 +3,13 @@ import Nav from '@/components/Nav';
 import AlertCard from '@/components/AlertCard';
 import { prisma } from '@/lib/prisma';
 import AlertsClient from './AlertsClient';
+import { Prisma } from '@prisma/client';
 
 async function getAlerts(severity?: string, startDate?: string, endDate?: string) {
-  const where: any = {};
+  const where: Prisma.AlertWhereInput = {};
 
   if (severity && severity !== 'ALL') {
-    where.severity = severity;
+    where.severity = severity as Prisma.AlertSeverity;
   }
 
   if (startDate || endDate) {
@@ -34,7 +35,7 @@ async function getAlerts(severity?: string, startDate?: string, endDate?: string
     orderBy: { timestamp: 'desc' },
   });
 
-  return alerts.map((alert) => ({
+  return alerts.map((alert: typeof alerts[0]) => ({
     id: alert.id,
     campaignId: alert.campaignId,
     campaignName: alert.campaign.name,
