@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  healthScore Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  metrics     Metric[]
+  alerts      Alert[]
+}
+
+model Metric {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  name        String
+  value       Float
+  timestamp   DateTime @default(now())
+  zScore      Float?
+  threshold   Float    @default(2.0)
+  sensitivity Int      @default(50)
+}
+
+model Alert {
+  id          String      @id @default(cuid())
+  campaignId  String
+  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  metricName  String
+  severity    AlertSeverity
+  expected    Float
+  actual      Float
+  timestamp   DateTime    @default(now())
+  status      AlertStatus @default(ACTIVE)
+  resolvedAt  DateTime?
+  dismissedAt DateTime?
+}
+
+enum AlertSeverity {
+  CRITICAL
+  WARNING
+  INFO
+  OK
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  DISMISSED
+}
+
+model Settings {
+  id                String  @id @default("default")
+  slackEnabled      Boolean @default(false)
+  emailEnabled      Boolean @default(true)
+  inAppEnabled      Boolean @default(true)
+  ctrSensitivity    Int     @default(50)
+  cpcSensitivity    Int     @default(50)
+  roasSensitivity   Int     @default(50)
+  conversionSensitivity Int  @default(50)
+  spendSensitivity  Int     @default(50)
+  bounceSensitivity Int     @default(50)
+  ctrThreshold      Float   @default(15.0)
+  cpcThreshold      Float   @default(15.0)
+  roasThreshold     Float   @default(15.0)
+  conversionThreshold Float @default(15.0)
+  spendThreshold    Float   @default(15.0)
+  bounceThreshold   Float   @default(15.0)
+}
+
