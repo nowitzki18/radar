@@ -99,7 +99,10 @@ export default async function CampaignPage({ params }: { params: { id: string } 
 
   const chartData: Record<string, { data: any[]; anomalies: any[] }> = {};
   metrics.forEach((metric) => {
-    const latestMetric = campaign.metrics.find((m: typeof campaign.metrics[0]) => m.name === metric);
+    const latestMetric = (campaign.metrics as Array<{
+      name: string;
+      value: number;
+    }>).find((m) => m.name === metric);
     const baseValue = latestMetric?.value || baseValues[metric] || 100;
     chartData[metric] = generateTimeSeriesData(metric, baseValue);
   });
@@ -121,7 +124,16 @@ export default async function CampaignPage({ params }: { params: { id: string } 
               <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
               {campaign.alerts.length > 0 ? (
                 <div className="space-y-4">
-                  {campaign.alerts.map((alert: typeof campaign.alerts[0]) => (
+                  {(campaign.alerts as Array<{
+                    id: string;
+                    campaignId: string;
+                    metricName: string;
+                    severity: string;
+                    expected: number;
+                    actual: number;
+                    timestamp: Date;
+                    status: string;
+                  }>).map((alert) => (
                     <AlertCard
                       key={alert.id}
                       alert={{
