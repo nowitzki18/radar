@@ -99,7 +99,7 @@ export default async function CampaignPage({ params }: { params: { id: string } 
 
   const chartData: Record<string, { data: any[]; anomalies: any[] }> = {};
   metrics.forEach((metric) => {
-    const latestMetric = campaign.metrics.find((m) => m.name === metric);
+    const latestMetric = campaign.metrics.find((m: typeof campaign.metrics[0]) => m.name === metric);
     const baseValue = latestMetric?.value || baseValues[metric] || 100;
     chartData[metric] = generateTimeSeriesData(metric, baseValue);
   });
