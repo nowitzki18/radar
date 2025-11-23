@@ -4,6 +4,32 @@ import { prisma } from '@/lib/prisma';
 // Simulate real-time anomaly detection
 export async function GET() {
   try {
+    // Check if database tables exist, if not return placeholder response
+    try {
+      await prisma.$queryRaw`SELECT 1 FROM Campaign LIMIT 1`;
+    } catch (error: any) {
+      if (error.code === 'P2021') {
+        // Table doesn't exist yet, return placeholder response
+        return NextResponse.json({
+          alerts: [
+            {
+              id: 'placeholder-1',
+              campaignId: '2',
+              metricName: 'CTR',
+              severity: 'CRITICAL',
+              expected: 3.5,
+              actual: 1.2,
+              timestamp: new Date(),
+              status: 'ACTIVE',
+            },
+          ],
+          timestamp: new Date(),
+          message: 'Using placeholder data - database not initialized',
+        });
+      }
+      throw error;
+    }
+
     const campaigns = await prisma.campaign.findMany({
       include: {
         metrics: {

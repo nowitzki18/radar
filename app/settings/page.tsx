@@ -6,6 +6,34 @@ import SettingsClient from './SettingsClient';
 export const dynamic = 'force-dynamic';
 
 async function getSettings() {
+  try {
+    // Check if database tables exist
+    await prisma.$queryRaw`SELECT 1 FROM Settings LIMIT 1`;
+  } catch (error: any) {
+    if (error.code === 'P2021') {
+      // Table doesn't exist, return default settings
+      return {
+        id: 'default',
+        slackEnabled: false,
+        emailEnabled: true,
+        inAppEnabled: true,
+        ctrSensitivity: 50,
+        cpcSensitivity: 50,
+        roasSensitivity: 50,
+        conversionSensitivity: 50,
+        spendSensitivity: 50,
+        bounceSensitivity: 50,
+        ctrThreshold: 15.0,
+        cpcThreshold: 15.0,
+        roasThreshold: 15.0,
+        conversionThreshold: 15.0,
+        spendThreshold: 15.0,
+        bounceThreshold: 15.0,
+      };
+    }
+    throw error;
+  }
+
   let settings = await prisma.settings.findFirst();
 
   if (!settings) {

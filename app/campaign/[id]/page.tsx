@@ -10,6 +10,77 @@ import CampaignActions from './CampaignActions';
 export const dynamic = 'force-dynamic';
 
 async function getCampaign(id: string) {
+  try {
+    // Check if database tables exist
+    await prisma.$queryRaw`SELECT 1 FROM Campaign LIMIT 1`;
+  } catch (error: any) {
+    if (error.code === 'P2021') {
+      // Table doesn't exist yet, return placeholder data
+      const placeholderCampaigns: Record<string, any> = {
+        '1': {
+          id: '1',
+          name: 'Summer Sale 2024',
+          healthScore: 85,
+          metrics: [],
+          alerts: [],
+        },
+        '2': {
+          id: '2',
+          name: 'Product Launch Campaign',
+          healthScore: 45,
+          metrics: [],
+          alerts: [
+            {
+              id: '1',
+              campaignId: '2',
+              metricName: 'CTR',
+              severity: 'CRITICAL',
+              expected: 3.5,
+              actual: 1.2,
+              timestamp: new Date(Date.now() - 3600000),
+              status: 'ACTIVE',
+            },
+          ],
+        },
+        '3': {
+          id: '3',
+          name: 'Brand Awareness Q2',
+          healthScore: 92,
+          metrics: [],
+          alerts: [],
+        },
+        '4': {
+          id: '4',
+          name: 'Retargeting Campaign',
+          healthScore: 38,
+          metrics: [],
+          alerts: [
+            {
+              id: '2',
+              campaignId: '4',
+              metricName: 'ROAS',
+              severity: 'WARNING',
+              expected: 4.2,
+              actual: 2.8,
+              timestamp: new Date(Date.now() - 7200000),
+              status: 'ACTIVE',
+            },
+          ],
+        },
+        '5': {
+          id: '5',
+          name: 'Holiday Promo',
+          healthScore: 78,
+          metrics: [],
+          alerts: [],
+        },
+      };
+
+      return placeholderCampaigns[id] || null;
+    }
+    throw error;
+  }
+
   const campaign = await prisma.campaign.findUnique({
     where: { id },
     include: {

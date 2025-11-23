@@ -8,6 +8,67 @@ import AlertsClient from './AlertsClient';
 export const dynamic = 'force-dynamic';
 
 async function getAlerts(severity?: string, startDate?: string, endDate?: string) {
+  try {
+    // Check if database tables exist
+    await prisma.$queryRaw`SELECT 1 FROM Alert LIMIT 1`;
+  } catch (error: any) {
+    if (error.code === 'P2021') {
+      // Table doesn't exist yet, return placeholder data
+      const placeholderAlerts = [
+        {
+          id: '1',
+          campaignId: '2',
+          campaignName: 'Product Launch Campaign',
+          metricName: 'CTR',
+          severity: 'CRITICAL',
+          expected: 3.5,
+          actual: 1.2,
+          timestamp: new Date(Date.now() - 3600000),
+          status: 'ACTIVE',
+        },
+        {
+          id: '2',
+          campaignId: '4',
+          campaignName: 'Retargeting Campaign',
+          metricName: 'ROAS',
+          severity: 'WARNING',
+          expected: 4.2,
+          actual: 2.8,
+          timestamp: new Date(Date.now() - 7200000),
+          status: 'ACTIVE',
+        },
+        {
+          id: '3',
+          campaignId: '5',
+          campaignName: 'Holiday Promo',
+          metricName: 'CPC',
+          severity: 'INFO',
+          expected: 1.25,
+          actual: 1.45,
+          timestamp: new Date(Date.now() - 1800000),
+          status: 'ACTIVE',
+        },
+      ];
+
+      // Apply filters to placeholder data
+      let filtered = placeholderAlerts;
+      if (severity && severity !== 'ALL') {
+        filtered = filtered.filter((a) => a.severity === severity);
+      }
+      if (startDate) {
+        const start = new Date(startDate);
+        filtered = filtered.filter((a) => a.timestamp >= start);
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        filtered = filtered.filter((a) => a.timestamp <= end);
+      }
+
+      return filtered;
+    }
+    throw error;
+  }
+
   const where: {
     severity?: string;
     timestamp?: {
