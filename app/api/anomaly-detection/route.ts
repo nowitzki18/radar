@@ -8,7 +8,7 @@ export async function GET() {
     try {
       await prisma.$queryRaw`SELECT 1 FROM Campaign LIMIT 1`;
     } catch (error: any) {
-      if (error.code === 'P2021') {
+      if (error.code === 'P2021' || error.code === 'P2003') {
         // Table doesn't exist yet, return placeholder response
         return NextResponse.json({
           alerts: [
@@ -27,7 +27,9 @@ export async function GET() {
           message: 'Using placeholder data - database not initialized',
         });
       }
-      throw error;
+      // For other errors, return empty response instead of crashing
+      console.error('Database error in anomaly detection:', error);
+      return NextResponse.json({ alerts: [], timestamp: new Date() });
     }
 
     const campaigns = await prisma.campaign.findMany({

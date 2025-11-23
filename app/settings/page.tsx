@@ -10,7 +10,7 @@ async function getSettings() {
     // Check if database tables exist
     await prisma.$queryRaw`SELECT 1 FROM Settings LIMIT 1`;
   } catch (error: any) {
-    if (error.code === 'P2021') {
+    if (error.code === 'P2021' || error.code === 'P2003') {
       // Table doesn't exist, return default settings
       return {
         id: 'default',
@@ -31,10 +31,30 @@ async function getSettings() {
         bounceThreshold: 15.0,
       };
     }
-    throw error;
+    // For other errors, return default settings
+    console.error('Database error:', error);
+    return {
+      id: 'default',
+      slackEnabled: false,
+      emailEnabled: true,
+      inAppEnabled: true,
+      ctrSensitivity: 50,
+      cpcSensitivity: 50,
+      roasSensitivity: 50,
+      conversionSensitivity: 50,
+      spendSensitivity: 50,
+      bounceSensitivity: 50,
+      ctrThreshold: 15.0,
+      cpcThreshold: 15.0,
+      roasThreshold: 15.0,
+      conversionThreshold: 15.0,
+      spendThreshold: 15.0,
+      bounceThreshold: 15.0,
+    };
   }
 
-  let settings = await prisma.settings.findFirst();
+  try {
+    let settings = await prisma.settings.findFirst();
 
   if (!settings) {
     settings = await prisma.settings.create({
@@ -59,7 +79,29 @@ async function getSettings() {
     });
   }
 
-  return settings;
+    return settings;
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    // Return default settings on any error
+    return {
+      id: 'default',
+      slackEnabled: false,
+      emailEnabled: true,
+      inAppEnabled: true,
+      ctrSensitivity: 50,
+      cpcSensitivity: 50,
+      roasSensitivity: 50,
+      conversionSensitivity: 50,
+      spendSensitivity: 50,
+      bounceSensitivity: 50,
+      ctrThreshold: 15.0,
+      cpcThreshold: 15.0,
+      roasThreshold: 15.0,
+      conversionThreshold: 15.0,
+      spendThreshold: 15.0,
+      bounceThreshold: 15.0,
+    };
+  }
 }
 
 export default async function SettingsPage() {

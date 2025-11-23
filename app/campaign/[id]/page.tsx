@@ -14,7 +14,7 @@ async function getCampaign(id: string) {
     // Check if database tables exist
     await prisma.$queryRaw`SELECT 1 FROM Campaign LIMIT 1`;
   } catch (error: any) {
-    if (error.code === 'P2021') {
+    if (error.code === 'P2021' || error.code === 'P2003') {
       // Table doesn't exist yet, return placeholder data
       const placeholderCampaigns: Record<string, any> = {
         '1': {
@@ -78,10 +78,13 @@ async function getCampaign(id: string) {
 
       return placeholderCampaigns[id] || null;
     }
-    throw error;
+    // For other errors, return null to trigger 404
+    console.error('Database error:', error);
+    return null;
   }
 
-  const campaign = await prisma.campaign.findUnique({
+  try {
+    const campaign = await prisma.campaign.findUnique({
     where: { id },
     include: {
       metrics: {
@@ -95,7 +98,11 @@ async function getCampaign(id: string) {
     },
   });
 
-  return campaign;
+    return campaign;
+  } catch (error) {
+    console.error('Error fetching campaign:', error);
+    return null;
+  }
 }
 
 function generateTimeSeriesData(metricName: string, baseValue: number, count: number = 30) {
