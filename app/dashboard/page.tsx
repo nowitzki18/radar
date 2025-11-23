@@ -2,10 +2,10 @@ import Link from 'next/link';
 import HealthScoreBadge from '@/components/HealthScoreBadge';
 import Nav from '@/components/Nav';
 import { prisma } from '@/lib/prisma';
-import { AlertSeverity } from '@/lib/store';
+import { Campaign, AlertSeverity, CampaignWithAlertStatus } from '@/types';
 
-async function getCampaigns() {
-  const campaigns = await prisma.campaign.findMany({
+async function getCampaigns(): Promise<CampaignWithAlertStatus[]> {
+  const campaigns: Campaign[] = await prisma.campaign.findMany({
     include: {
       alerts: {
         where: { status: 'ACTIVE' },
@@ -14,12 +14,12 @@ async function getCampaigns() {
       },
     },
     orderBy: { healthScore: 'asc' },
-  });
+  }) as Campaign[];
 
-  return campaigns.map((campaign) => {
+  return campaigns.map((campaign: Campaign) => {
     let alertStatus: AlertSeverity = 'OK';
     if (campaign.alerts.length > 0) {
-      alertStatus = campaign.alerts[0].severity as AlertSeverity;
+      alertStatus = campaign.alerts[0].severity;
     } else if (campaign.healthScore < 50) {
       alertStatus = 'CRITICAL';
     } else if (campaign.healthScore < 70) {
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {campaigns.map((campaign) => (
+              {campaigns.map((campaign: CampaignWithAlertStatus) => (
                 <tr key={campaign.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
