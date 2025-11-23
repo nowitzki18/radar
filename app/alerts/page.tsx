@@ -3,13 +3,18 @@ import Nav from '@/components/Nav';
 import AlertCard from '@/components/AlertCard';
 import { prisma } from '@/lib/prisma';
 import AlertsClient from './AlertsClient';
-import { Prisma } from '@prisma/client';
 
 async function getAlerts(severity?: string, startDate?: string, endDate?: string) {
-  const where: Prisma.AlertWhereInput = {};
+  const where: {
+    severity?: string;
+    timestamp?: {
+      gte?: Date;
+      lte?: Date;
+    };
+  } = {};
 
   if (severity && severity !== 'ALL') {
-    where.severity = severity as Prisma.AlertSeverity;
+    where.severity = severity;
   }
 
   if (startDate || endDate) {
