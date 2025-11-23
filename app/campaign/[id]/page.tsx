@@ -121,7 +121,7 @@ export default async function CampaignPage({ params }: { params: { id: string } 
               <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
               {campaign.alerts.length > 0 ? (
                 <div className="space-y-4">
-                  {campaign.alerts.map((alert) => (
+                  {campaign.alerts.map((alert: typeof campaign.alerts[0]) => (
                     <AlertCard
                       key={alert.id}
                       alert={{
